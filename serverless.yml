@@ -1,0 +1,54 @@
+service: aws-lambda-challenge
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  lambdaHashingVersion: '20230629'
+  region: us-east-1
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:*
+      Resource:
+        - arn:aws:dynamodb:us-east-1:278410313057:table/Vehicle
+
+
+functions:
+  getVehicle:
+    handler: src/getDetailVehicle.getVehicle
+    events:
+      - httpApi:
+          path: /vehicle/{id}
+          method: get
+  getVehicles:
+    handler: src/getAllVehicles.getVehicles
+    events:
+      - httpApi:
+          path: /vehicles
+          method: get
+  createVehicle:
+    handler: src/createVehicle.createVehicle
+    events:
+      - httpApi:
+          path: /vehicles
+          method: post
+  updateVehicle:
+    handler: src/updateVehicle.updateVehicle
+    events:
+      - httpApi:
+          path: /vehicle/{id}
+          method: put
+resources:
+  Resources:
+    Vehicle:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: Vehicle
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
